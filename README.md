@@ -1071,7 +1071,7 @@ In widgets create info_design.dart
     Test 4: Compiled @ the branch of [`ver-1.2`](https://github.com/jatolentino/Flutter-Foodie-User/tree/v1.2)
 
     <p align="center">
-    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.2/sources/step4-test-1.png" width="50">  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.2/sources/step4-test-1.png" width="100">  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
     <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.2/sources/step4-test-2.png" width="300">
     </p>
 

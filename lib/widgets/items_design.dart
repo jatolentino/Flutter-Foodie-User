@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:foodie_users/models/sellers.dart';
+import 'package:foodie_users/mainScreens/item_detail.screen.dart';
+import 'package:foodie_users/models/items.dart';
 
-class InfoDesignWidget extends StatefulWidget{
-  Sellers? model;
+class ItemsDesignWidget extends StatefulWidget{
+  Items? model;
   BuildContext? context;
 
-  InfoDesignWidget({this.model, this.context});
+  ItemsDesignWidget({this.model, this.context});
 
   @override
-  _InfoDesignWidgetState createState() => _InfoDesignWidgetState();
+  _ItemsDesignWidgetState createState() => _ItemsDesignWidgetState();
 }
 
-class _InfoDesignWidgetState extends State<InfoDesignWidget>{
+class _ItemsDesignWidgetState extends State<ItemsDesignWidget>{
   @override
   Widget build(BuildContext context){
     return InkWell(
+      onTap: (){
+        Navigator.push(context, MaterialPageRoute(builder: (c) => ItemDetailsScreen(model: widget.model)));
+      },
       splashColor: Colors.amber,
       child: Padding(
         padding: const EdgeInsets.all(5.0),
@@ -29,13 +33,13 @@ class _InfoDesignWidgetState extends State<InfoDesignWidget>{
                 color: Colors.grey[300],
               ),
               Image.network(
-                widget.model!.sellerAvatarUrl!,
+                widget.model!.thumbnailUrl!,
                 height: 220,
                 fit: BoxFit.cover,
               ),
               const SizedBox(height: 2.0,),
               Text(
-                widget.model!.sellerName!,
+                widget.model!.title!,
                 style: const TextStyle(
                   color: Colors.cyan,
                   fontSize: 20,
@@ -43,7 +47,7 @@ class _InfoDesignWidgetState extends State<InfoDesignWidget>{
                 )
               ),
               Text(
-                widget.model!.sellerEmail!,
+                widget.model!.shortInfo!,
                 style: const TextStyle(
                   color: Colors.grey,
                   fontSize: 12,

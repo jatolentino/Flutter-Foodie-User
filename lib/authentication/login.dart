@@ -109,6 +109,9 @@ class _LoginScreenState extends State<LoginScreen> {
           await sharedPreferences!.setString("email", snapshot.data()!["email"]);
           await sharedPreferences!.setString("name", snapshot.data()!["name"]);
           await sharedPreferences!.setString("photoUrl", snapshot.data()!["photoUrl"]);
+
+          List<String> userCartList = snapshot.data()!["userCart"].cast<String>(); //Once added these new feature Cart to users, delete previous users 61-63 min 20
+          await sharedPreferences!.setStringList("userCart", userCartList);
           // ignore: use_build_context_synchronously
           Navigator.pop(context);
           // ignore: use_build_context_synchronously

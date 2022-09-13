@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:foodie_users/global/global.dart';
 import 'package:foodie_users/authentication/auth_screen.dart';
-import 'package:foodie_users/widgets/info_design.dart';
+import 'package:foodie_users/widgets/sellers_design.dart';
 import 'package:foodie_users/widgets/my_drawer.dart';
 import 'package:foodie_users/widgets/progress_bar.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -65,8 +65,9 @@ class _HomeScreenState extends State<HomeScreen> {
             )
           ),
         ),
-        title: Text(
-          "Welcome " + sharedPreferences!.getString("name")! +"!",
+        title: const Text(
+          "Foodie",
+          style: TextStyle(fontSize: 45, fontFamily: "Signatra"),
         ),
         centerTitle: true,
       ),
@@ -129,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Sellers sModel = Sellers.fromJson(
                         snapshot.data!.docs[index].data()! as Map<String, dynamic>
                       );
-                      return InfoDesignWidget(
+                      return SellersDesignWidget(  ///ADDEDDDD
                         model: sModel,
                         context: context,
                       );

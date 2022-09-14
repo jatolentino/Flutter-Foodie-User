@@ -1075,4 +1075,13 @@ In widgets create info_design.dart
     <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.2/sources/step4-test-2.png" width="550">
     </p>
 
+## 5. Creating a cart screen
+- In mainScreens create cart_screen.dart
 
+
+- Modify the app_bar, so when tapping it redirects to cart_screen.dart. Then, add the `sellerUID` to the item_detail_screen.dart, items_screen.dart and add the new variable (sellerUID) to app_bar.dart & cart_screen.dart;
+
+
+## 6. Grab the number of items 
+
+## 7. Create the widget cart design

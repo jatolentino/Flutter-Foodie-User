@@ -25,8 +25,8 @@ class _ItemsScreenState extends State<ItemsScreen> {
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      drawer: MyDrawer(),
-      appBar: MyAppBar(),
+      //drawer: MyDrawer(), min 4:33
+      appBar: MyAppBar(sellerUID: widget.model!.sellerUID),
       body: CustomScrollView(
         slivers: [
           // const SliverToBoxAdapter(

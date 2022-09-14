@@ -1438,5 +1438,5 @@ class _CartItemDesignState extends State<CartItemDesign>{
 Test 7.1: Compiled @ the branch of [`ver-1.3`](https://github.com/jatolentino/Flutter-Foodie-User/tree/v1.3)
 
 <p align="center">
-    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.3/sources/step7-test-1.png" width="200">
+    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.3/sources/step7-test-1.png" width="600">
 </p>

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:foodie_users/mainScreens/item_detail.screen.dart';
+import 'package:foodie_users/mainScreens/item_detail_screen.dart';
 import 'package:foodie_users/models/items.dart';
 
 class ItemsDesignWidget extends StatefulWidget{

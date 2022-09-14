@@ -41,3 +41,26 @@ addItemToCart(String? foodItemId, BuildContext context, int itemCounter){
       
     });
 }
+
+separateItemQuantities(){
+  List<int> separateItemQuantityList=[];
+  List<String> defaultItemList=[];
+  int i=1;
+  defaultItemList = sharedPreferences!.getStringList("userCart")!;
+
+  for(i; i< defaultItemList.length; i++){
+
+    String item = defaultItemList[i].toString();
+
+    List<String> listItemCharacters = item.split(":").toList();
+
+    var quanNumber = int.parse(listItemCharacters[1].toString());
+
+    print("\n This is Quantify Number= " + quanNumber.toString());
+    separateItemQuantityList.add(quanNumber);
+  }
+
+  print("\nThis is Items List now =");
+  print(separateItemQuantityList);
+  return separateItemQuantityList;
+}

@@ -40,7 +40,7 @@ class _CartScreenState extends State<CartScreen> {
               label: const Text("Clear Cart", style: TextStyle(fontSize: 16),),
               backgroundColor: Colors.red,
               icon: const Icon(Icons.clear_all),
-              heroTag: null,
+              heroTag: "btn1",
               onPressed: (){
 
               },
@@ -52,7 +52,7 @@ class _CartScreenState extends State<CartScreen> {
               label: const Text("Check Out", style: TextStyle(fontSize: 16,),),
               backgroundColor: Colors.red,
               icon: const Icon(Icons.navigate_next),
-              heroTag: null,
+              heroTag: "btn2",
               onPressed: (){
 
               },
@@ -71,7 +71,7 @@ class _CartScreenState extends State<CartScreen> {
             stream: FirebaseFirestore.instance
               .collection("items")
               .where("itemID", whereIn: separateItemIDs())
-              .orderBy("publisehdDate", descending: true)
+              .orderBy("publishedDate", descending: true)
               .snapshots(),
             builder: (context, snapshot)
             {

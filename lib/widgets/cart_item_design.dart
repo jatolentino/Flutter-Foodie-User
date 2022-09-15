@@ -26,7 +26,7 @@ class _CartItemDesignState extends State<CartItemDesign>{
       child: Padding(
         padding: const EdgeInsets.all(6.0),
         child: Container(
-          height: 165,
+          height: 140,
           width: MediaQuery.of(context).size.width,
           child: Row(
             children: [

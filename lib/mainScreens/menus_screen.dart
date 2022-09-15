@@ -1,10 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:foodie_users/assistantMethods/assistant_methods.dart';
 import 'package:foodie_users/global/global.dart';
 import 'package:foodie_users/authentication/auth_screen.dart';
+import 'package:foodie_users/mainScreens/home_screen.dart';
 import 'package:foodie_users/models/menus.dart';
 import 'package:foodie_users/models/sellers.dart';
+import 'package:foodie_users/splashScreen/splash_screen.dart';
 import 'package:foodie_users/widgets/menus_design.dart';
 // import 'package:foodie_users/uploadScreens/menus_upload_screen.dart';
 import 'package:foodie_users/widgets/sellers_design.dart';
@@ -25,7 +28,7 @@ class _MenusScreenState extends State<MenusScreen> {
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      drawer: MyDrawer(),
+      //drawer: MyDrawer(), NO DRAWER IN MENUS
       appBar: AppBar(
         flexibleSpace: Container(
           decoration: BoxDecoration(
@@ -41,7 +44,14 @@ class _MenusScreenState extends State<MenusScreen> {
             )
           ),
         ),
-        title: Text(
+        leading: IconButton( //clear the cart in the menus screen, aso clear the cart state in home
+          icon: const Icon(Icons.arrow_back),
+          onPressed: (){
+            clearCartNow(context);
+            Navigator.push(context, MaterialPageRoute(builder: (c)=> const MySplashScreen()));
+          },
+        ),
+        title: const Text(
           "Foodie",
           style: const TextStyle(fontSize: 45, fontFamily: "Signatra"),
         ),

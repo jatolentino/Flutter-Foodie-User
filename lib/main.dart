@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:foodie_users/assistantMethods/cart_item_counter.dart';
+import 'package:foodie_users/assistantMethods/total_amount.dart';
 import 'package:foodie_users/splashScreen/splash_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (c) => CartItemCounter()),
+        ChangeNotifierProvider(create: (c) => TotalAmount()),  //add the widget total_amount.dart
       ],
       child: MaterialApp(
         title: 'Users App',

@@ -56,8 +56,8 @@ class _MyAppBarState extends State<MyAppBar>{
               icon: const Icon(Icons.shopping_cart),
               onPressed: (){
               // send user to cart screen
-                Navigator.push(context, MaterialPageRoute(builder: (c)=> CartScreen(sellerUID: widget.sellerUID)));
-              },
+                  Navigator.push(context, MaterialPageRoute(builder: (c)=> CartScreen(sellerUID: widget.sellerUID)));
+              }
             ),
             Positioned(
               child: Stack(

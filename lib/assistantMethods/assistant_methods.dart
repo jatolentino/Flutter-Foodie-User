@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:foodie_users/assistantMethods/cart_item_counter.dart';
 import 'package:foodie_users/global/global.dart';
+import 'package:foodie_users/mainScreens/home_screen.dart';
+import 'package:foodie_users/splashScreen/splash_screen.dart';
 import 'package:provider/provider.dart';
 
 
@@ -63,4 +65,19 @@ separateItemQuantities(){
   print("\nThis is Items List now =");
   print(separateItemQuantityList);
   return separateItemQuantityList;
+}
+
+clearCartNow(context){
+  sharedPreferences!.setStringList("userCart", ['garbageValue']);
+  List<String>? emptyList = sharedPreferences!.getStringList("userCart");
+
+  FirebaseFirestore.instance
+    .collection("users")
+    .doc(firebaseAuth.currentUser!.uid)
+    .update({"userCart": emptyList}).then((value){
+    sharedPreferences!.setStringList("userCart", emptyList!);
+    Provider.of<CartItemCounter>(context, listen: false).displayCartListItemsNumber();
+    //Navigator.push(context, MaterialPageRoute(builder: (c)=> const HomeScreen())); //Transition after clearing cart
+    //Fluttertoast.showToast(msg: "Cart has been cleared.");
+    });
 }

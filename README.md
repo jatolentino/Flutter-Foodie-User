@@ -1077,11 +1077,626 @@ In widgets create info_design.dart
 
 ## 5. Creating a cart screen
 - In mainScreens create cart_screen.dart
+    ```dart
+    import 'package:cloud_firestore/cloud_firestore.dart';
+    import 'package:flutter/material.dart';
+    import 'package:foodie_users/assistantMethods/assistant_methods.dart';
+    import 'package:foodie_users/models/items.dart';
+    import 'package:foodie_users/widgets/app_bar.dart';
+    import 'package:foodie_users/widgets/cart_item_design.dart';
+    import 'package:foodie_users/widgets/progress_bar.dart';
+    import 'package:foodie_users/widgets/text_widget_header.dart';
 
+    class CartScreen extends StatefulWidget {
+    
+    final String? sellerUID;
+    CartScreen({this.sellerUID});
 
-- Modify the app_bar, so when tapping it redirects to cart_screen.dart. Then, add the `sellerUID` to the item_detail_screen.dart, items_screen.dart and add the new variable (sellerUID) to app_bar.dart & cart_screen.dart;
+    @override
+    _CartScreenState createState() => _CartScreenState();
+    }
 
+    class _CartScreenState extends State<CartScreen> {
+    List<int>? separateItemQuantityList;
+    
+    @override
+    void initState() {
+        super.initState();
+        //separateItemQuantities();
+        separateItemQuantityList = separateItemQuantities();
+    }
+
+    @override
+    Widget build(BuildContext context){
+        return Scaffold(
+        appBar: MyAppBar(sellerUID: widget.sellerUID),
+        floatingActionButton: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+            SizedBox(width: 8,),
+            Align(
+                alignment: Alignment.bottomLeft,
+                child: FloatingActionButton.extended(
+                label: const Text("Clear Cart", style: TextStyle(fontSize: 16),),
+                backgroundColor: Colors.red,
+                icon: const Icon(Icons.clear_all),
+                heroTag: "btn1",
+                onPressed: (){
+
+                },
+                ),
+            ),
+            Align(
+                alignment: Alignment.bottomLeft,
+                child: FloatingActionButton.extended(
+                label: const Text("Check Out", style: TextStyle(fontSize: 16,),),
+                backgroundColor: Colors.red,
+                icon: const Icon(Icons.navigate_next),
+                heroTag: "btn2",
+                onPressed: (){
+
+                },
+                ),
+            ),
+
+            ],
+        ),
+        body: CustomScrollView(
+            slivers: [
+            SliverPersistentHeader(
+                pinned: true, delegate: TextWidgetHeader(title: "Total amount 120"),
+            ),
+
+            StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                .collection("items")
+                .where("itemID", whereIn: separateItemIDs())
+                .orderBy("publishedDate", descending: true)
+                .snapshots(),
+                builder: (context, snapshot)
+                {
+                return !snapshot.hasData
+                ? SliverToBoxAdapter(child: Center(child: circularProgress(),),)
+                : snapshot.data!.docs.length == 0
+                ?
+                Container()
+                : SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index){
+                    Items model = Items.fromJson(
+                        snapshot.data!.docs[index].data()! as Map<String, dynamic>,
+                    );
+                    return CartItemDesign(
+                        model: model,
+                        context: context,
+                        quanNumber: separateItemQuantityList![index],//separateItemQuantitiesList: [index],
+                        );
+                    },
+                    childCount: snapshot.hasData ? snapshot.data!.docs.length: 0,
+                    ),
+                );
+                },
+            ),
+            ],
+        ),
+       );
+      }
+    }
+    ```
+
+- Modify the app_bar, so when tapping it redirects to cart_screen.dart. 
+
+    ```dart
+    import 'package:flutter/material.dart';
+    import 'package:foodie_users/assistantMethods/cart_item_counter.dart';
+    import 'package:foodie_users/mainScreens/cart_screen.dart';
+    import 'package:provider/provider.dart';
+
+    class MyAppBar extends StatefulWidget with PreferredSizeWidget{
+
+    final PreferredSizeWidget? bottom;
+    final String? sellerUID;
+
+    MyAppBar({this.bottom, this.sellerUID});
+
+    @override
+    _MyAppBarState createState() => _MyAppBarState();
+    
+    @override
+    // TODO: implement preferredSize
+    Size get preferredSize => bottom==null?Size(56, AppBar().preferredSize.height):Size(56, 80 + AppBar().preferredSize.height);
+
+    }
+
+    class _MyAppBarState extends State<MyAppBar>{
+    @override
+    Widget build(BuildContext context){
+        return AppBar(
+        flexibleSpace: Container(
+            decoration: BoxDecoration(
+            gradient: LinearGradient( //const linearGradient
+                colors: [
+                Colors.pink.shade400,
+                Colors.red.shade400,
+                ],
+                begin: const FractionalOffset(0.0, 0.5),
+                end: const FractionalOffset(1.0, 0.5),
+                stops: [0.0, 1.0],
+                tileMode: TileMode.clamp,
+            )
+            ),
+        ),
+        leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: (){
+            Navigator.pop(context);
+            },
+        ),
+        title: const Text(
+            "Foodie",
+            style: TextStyle(fontSize: 35, fontFamily: "Signatra"), //Lobster
+        ),
+        centerTitle: true,
+        //automaticallyImplyLeading: false,
+        actions: [
+            Stack(
+            children: [
+                IconButton(
+                icon: const Icon(Icons.shopping_cart),
+                onPressed: (){
+                // send user to cart screen
+                    Navigator.push(context, MaterialPageRoute(builder: (c)=> CartScreen(sellerUID: widget.sellerUID)));
+                },
+                ),
+                Positioned(
+                child: Stack(
+                    children: [
+                    const Icon(
+                        Icons.brightness_1,
+                        size: 20.0,
+                        color: Colors.green,
+                    ),
+                    Positioned(
+                        top:3,
+                        right: 4,
+                        child: Center(
+                        //child: Text("0", style: TextStyle(color: Colors.white, fontSize: 12),),
+                        child: Consumer<CartItemCounter>(
+                            builder: (context, counter, c){
+                            return Text(
+                                counter.count.toString(),
+                                style: const TextStyle(color: Colors.white, fontSize: 12),
+                            );
+                            },
+                        ),
+                        ),
+                    ),
+                    ],
+                ),
+                ),
+            ],
+            ),
+        ],
+        );
+    }
+    }
+    ```
+
+- Then, add the `sellerUID` to the item_detail_screen.dart, items_screen.dart and add the new variable (sellerUID) to app_bar.dart & cart_screen.dart
+
+    ```dart
+    :
+    class _ItemsScreenState extends State<ItemsScreen> {
+        @override
+        Widget build(BuildContext context){
+            return Scaffold(
+            //drawer: MyDrawer(), min 4:33
+            appBar: MyAppBar(sellerUID: widget.model!.sellerUID),
+            body: CustomScrollView(
+    :
+    ```
 
 ## 6. Grab the number of items 
+- Create a function that grabs only the quantity items from database, because the format if as ID:# (34342234:2), where the first numeral is the Item ID and the second the quantify of those items.<br/>
+For instance a list of products in the cart are shown in the database as:<br/>
+9722423424:2<br/>
+6786745353:2<br/>
+5765835343:6<br/>
+3523246235:1<br/>
+We want to extract the quantities in a list like: `[2, 2, 6, 1]` <br/>
+In assisntantMethods/assistant_methods.dart
+    
+    ```dart
+    separateItemQuantities(){
+    List<int> separateItemQuantityList=[];
+    List<String> defaultItemList=[];
+    int i=1;
+    defaultItemList = sharedPreferences!.getStringList("userCart")!;
+
+    for(i; i< defaultItemList.length; i++){
+
+        String item = defaultItemList[i].toString();
+
+        List<String> listItemCharacters = item.split(":").toList();
+
+        var quanNumber = int.parse(listItemCharacters[1].toString());
+
+        print("\n This is Quantify Number= " + quanNumber.toString());
+        separateItemQuantityList.add(quanNumber);
+    }
+
+    print("\nThis is Items List now =");
+    print(separateItemQuantityList);
+    return separateItemQuantityList;
+    }
+    ```
 
 ## 7. Create the widget cart design
+In order to display the cart items on the cart_screen.dart, create the design widget: widgets/cart_item_design.dart
+
+    ```dart
+    import 'package:flutter/material.dart';
+    import 'package:foodie_users/models/items.dart';
+
+
+    class CartItemDesign extends StatefulWidget{
+
+    final Items? model;
+    BuildContext? context;
+    final int? quanNumber;//final List<int>? separateItemQuantitiesList;
+
+    CartItemDesign({
+        this.model,
+        this.context,
+        this.quanNumber,//this.separateItemQuantitiesList,
+    });
+
+    @override
+    _CartItemDesignState createState() => _CartItemDesignState();
+    }
+
+    class _CartItemDesignState extends State<CartItemDesign>{
+    @override
+    Widget build(BuildContext context){
+        return InkWell(
+        splashColor: Colors.cyan,
+        child: Padding(
+            padding: const EdgeInsets.all(6.0),
+            child: Container(
+            height: 165,
+            width: MediaQuery.of(context).size.width,
+            child: Row(
+                children: [
+                Image.network(widget.model!.thumbnailUrl!, width: 140, height: 120,),
+                const SizedBox(width: 6,),
+                Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                    Text(
+                        widget.model!.title!,
+                        style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontFamily: "Kiwi",
+                        ),
+                    ),
+                    const SizedBox(height: 1,),
+                    Row( //quantity number // x 7
+                        children: [
+                        const Text(
+                            "x",
+                            style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 25,
+                            fontFamily: "Acme",
+                            ),
+                        ),
+                        Text(
+                            widget.quanNumber.toString(),//widget.separateItemQuantitiesList.toString(), //quanNumber
+                            style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 25,
+                            fontFamily: "Acme",
+                            ),
+                        ),
+                        ],
+                    ),
+                    Row(
+                        children: [
+                        const Text(  //Price
+                            "Price: ",
+                            style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.grey,
+                            ),
+                        ),
+                        const Text(  //MONEY
+                            "\$ ",
+                            style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.blue,
+                            ),
+                        ),
+                        Text(
+                            widget.model!.price.toString(),
+                            style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.blue,
+                            ),
+                        ),
+                        ],
+                    ),
+                    ],
+                ),
+                ],
+            ),
+            ),
+        ),
+        );
+    }}
+    ```
+
+Test 7.1: Compiled @ the branch of [`ver-1.3`](https://github.com/jatolentino/Flutter-Foodie-User/tree/v1.3)
+
+<p align="center">
+    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.3/sources/step7-test-1.png" width="600">
+</p>
+
+## 8. Configure the clear cart button
+- In the assistant_methods.dart, create a function called clearCartNow
+
+```dart
+    clearCartNow(context){
+    sharedPreferences!.setStringList("userCart", ['garbageValue']);
+    List<String>? emptyList = sharedPreferences!.getStringList("userCart");
+
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(firebaseAuth.currentUser!.uid)
+        .update({"userCart": emptyList}).then((value){
+        sharedPreferences!.setStringList("userCart", emptyList!);
+        Provider.of<CartItemCounter>(context, listen: false).displayCartListItemsNumber();
+        });
+    }
+```
+
+- Add the function to the button in cart_screen.dart
+
+    ```dart
+    :
+    floatingActionButton: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+            const SizedBox(width: 8,),
+            Align(
+                alignment: Alignment.bottomLeft,
+                child: FloatingActionButton.extended(
+                label: const Text("Clear Cart", style: TextStyle(fontSize: 16),),
+                backgroundColor: Colors.red,
+                icon: const Icon(Icons.clear_all),
+                heroTag: "btn1",
+                onPressed: (){
+                    clearCartNow(context);
+                },
+                ),
+            ),
+    :
+    ```
+
+- Fix the cart_screen.dart that uses the same MyAppBar widget and that causes problems when there are no items in the cart.
+
+    ```dart
+    :   
+    @override
+    Widget build(BuildContext context){
+        return Scaffold(
+        appBar: //MyAppBar(sellerUID: widget.sellerUID), this is sending to the cartsecrren (arrow_back button)
+        AppBar(
+            flexibleSpace: Container(
+            decoration: BoxDecoration(
+                gradient: LinearGradient( //const linearGradient
+                colors: [
+                    Colors.pink.shade400,
+                    Colors.red.shade400,
+                ],
+                begin: const FractionalOffset(0.0, 0.5),
+                end: const FractionalOffset(1.0, 0.5),
+                stops: [0.0, 1.0],
+                tileMode: TileMode.clamp,
+                )
+            ),
+            ),
+            leading: IconButton(
+            icon: const Icon(Icons.clear_all), //////// IT WAS Icons.arrow_back
+            onPressed: (){
+                clearCartNow(context);  ////// SO WHEN YOU GO BACK, THE CART IS CLEARED
+                Navigator.push(context, MaterialPageRoute(builder: (c)=> const MySplashScreen()));
+                Fluttertoast.showToast(msg: "Cart has been cleared.");
+            },
+            ),
+            title: const Text(
+            "Foodie",
+            style: TextStyle(fontSize: 35, fontFamily: "Signatra"), //Lobster
+            ),
+            centerTitle: true,
+            //automaticallyImplyLeading: false,
+            actions: [
+            Stack(
+                children: [
+                IconButton(
+                    icon: const Icon(Icons.shopping_cart),
+                    onPressed: (){
+                    // send user to cart screen
+                    //Navigator.push(context, MaterialPageRoute(builder: (c)=> CartScreen(sellerUID: widget.sellerUID)));
+                    //clickeds
+                    },
+                ),
+                Positioned(
+                    child: Stack(
+                    children: [
+                        const Icon(
+                        Icons.brightness_1,
+                        size: 20.0,
+                        color: Colors.green,
+                        ),
+                        Positioned(
+                        top:3,
+                        right: 4,
+                        child: Center(
+                            //child: Text("0", style: TextStyle(color: Colors.white, fontSize: 12),),
+                            child: Consumer<CartItemCounter>(
+                            builder: (context, counter, c){
+                                return Text(
+                                counter.count.toString(),
+                                style: const TextStyle(color: Colors.white, fontSize: 12),
+                                );
+                            },
+                            ),
+                        ),
+                        ),
+                    ],
+                    ),
+                ),
+                ],
+            ),
+            ],
+        ),
+        :
+    ```
+
+- Add the clear cart function to the arrow_back button on menus_screen.dart, and then send the user to home_screen via the splash_screen
+
+    ```dart
+    leading: IconButton(
+        icon: const Icon(Icons.clear_all), 
+        onPressed: (){
+            clearCartNow(context);
+            Navigator.push(context, MaterialPageRoute(builder: (c)=> const MySplashScreen()));
+        },
+    ),
+    ```
+- Add the clear cart context state on the home_screen.dart
+    ```dart
+    :
+        "slider/26.jpg",
+        "slider/27.jpg",    
+    ];
+    @override
+    void initState(){
+        super.initState();
+        clearCartNow(context);
+    }
+    Widget build(BuildContext context){
+        return Scaffold(
+    :
+    ```
+
+- Create an algorithm to calculate the total price of the cart in assistantMethods/total_amount.dart
+
+    ```dart
+    import 'package:flutter/cupertino.dart';
+
+    class TotalAmount extends ChangeNotifier{
+    double _totalAmount = 0;
+    double get tAmount => _totalAmount;
+
+    displayTotalAmount(double number) async {
+        _totalAmount = number;
+        await Future.delayed(const Duration(milliseconds: 100),()
+        {
+        notifyListeners();
+        });
+    }
+    }
+    ```
+
+- Add the variables to the cart_screen and the state
+
+    ```dart
+    :
+    class _CartScreenState extends State<CartScreen> {
+    List<int>? separateItemQuantityList;
+    num totalAmount = 0;
+
+    @override
+    void initState() {
+        super.initState();
+        //separateItemQuantities();
+
+        totalAmount = 0;
+        Provider.of<TotalAmount>(context, listen: false).displayTotalAmount(0); //// ADDING THE FUNCTION from total_amount.dart
+        separateItemQuantityList = separateItemQuantities();
+    }
+    :
+    :
+    Container()
+        : SliverList(
+        delegate: SliverChildBuilderDelegate((context, index){
+            Items model = Items.fromJson(
+            snapshot.data!.docs[index].data()! as Map<String, dynamic>,
+            );
+            
+            if(index == 0){
+            totalAmount = 0;
+            totalAmount = totalAmount + model.price! * separateItemQuantityList![index]; //#*price
+            }
+
+            else{
+            totalAmount = totalAmount + model.price! * separateItemQuantityList![index]; //#*price
+            }
+
+            if(snapshot.data!.docs.length -1 == index){ //substract the gargabe constant from database = last index/iteration ended
+            WidgetsBinding.instance!.addPostFrameCallback((timeStamp){
+                Provider.of<TotalAmount>(context, listen: false).displayTotalAmount(totalAmount.toDouble()); //insertin the total amount >> Go to define provider of total amount in main.dart
+            });
+            }
+    :
+    ```
+
+- Add the provider notifier to the main.dart
+
+    ```dart
+    :
+    class MyApp extends StatelessWidget {
+    const MyApp({Key? key}) : super(key: key);
+
+    @override
+    Widget build(BuildContext context) {
+        return MultiProvider(
+        providers: [
+            ChangeNotifierProvider(create: (c) => CartItemCounter()),
+            ChangeNotifierProvider(create: (c) => TotalAmount()),  //add the widget total_amount.dart
+        ],
+    ```
+
+- Adding the total Price on top of the cart_screen
+
+    ```dart
+    :
+    SliverToBoxAdapter(
+        child: Consumer2<TotalAmount, CartItemCounter>(builder: (context, amountProvider, cartProvider, c)
+        {
+        return Padding(
+            padding: const EdgeInsets.all(8),
+            child: Center(
+            child: cartProvider.count == 0
+            ? Container ()
+            : Text(
+                "Total Price " + amountProvider.tAmount.toString(),
+                style: const TextStyle(
+                color: Colors.black,
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+                )
+            )
+            )
+        );
+        }),
+    ),
+    ```
+    Test 8.1: Compiled @ the branch of [`ver-1.4`](https://github.com/jatolentino/Flutter-Foodie-User/tree/v1.4)
+
+    <p align="center">
+    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.4/sources/step8-test-1.jpeg" width="200">  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+
+    </p>

@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:foodie_users/assistantMethods/assistant_methods.dart';
 import 'package:foodie_users/global/global.dart';
 import 'package:foodie_users/authentication/auth_screen.dart';
 import 'package:foodie_users/widgets/sellers_design.dart';
@@ -48,6 +49,10 @@ class _HomeScreenState extends State<HomeScreen> {
     "slider/27.jpg",    
   ];
   @override
+  void initState(){
+    super.initState();
+    clearCartNow(context);
+  }
   Widget build(BuildContext context){
     return Scaffold(
       appBar: AppBar(

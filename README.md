@@ -1700,3 +1700,588 @@ Test 7.1: Compiled @ the branch of [`ver-1.3`](https://github.com/jatolentino/Fl
     <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.4/sources/step8-test-1.jpeg" width="200">  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
 
     </p>
+
+## 9. Creating the Check out button function 71-77
+- Create the address screen on the mainScreens folder, this screen will contain the address_design widget that uses the model address.dart and the method address_changer.dart. <br/>
+It's worth to mention that the address_design widget uses the Provider: changeNotifier that notifies when the first address was selected to drow a circle button and the button `Proceed` accodring to the index value of that context.
+- Creating the mainScreens/address_screen.dart
+
+    ```dart
+    import 'package:cloud_firestore/cloud_firestore.dart';
+    import 'package:flutter/material.dart';
+    import 'package:foodie_users/assistantMethods/address_changer.dart';
+    import 'package:foodie_users/global/global.dart';
+    import 'package:foodie_users/mainScreens/save_address_screen.dart';
+    import 'package:foodie_users/widgets/simple_app_bar.dart';
+    import 'package:provider/provider.dart';
+    import 'package:foodie_users/models/address.dart';
+    import 'package:foodie_users/widgets/address_design.dart';
+    import 'package:foodie_users/widgets/progress_bar.dart';
+
+    class AddressScreen extends StatefulWidget {
+    final double? totalAmount;
+    final String? sellerUID;  //add '?' to remove error below on this.totalAmount
+
+    AddressScreen({this.totalAmount, this.sellerUID});
+
+    @override
+    _AddressScreenState createState() => _AddressScreenState();
+    }
+
+    class _AddressScreenState extends State<AddressScreen> {
+    @override
+    Widget build(BuildContext context){
+        return Scaffold(
+        appBar: SimpleAppBar(),
+        floatingActionButton: FloatingActionButton.extended(
+            label: const Text("Add New Address"),
+            backgroundColor: Colors.red,
+            icon: const Icon(Icons.add_location, color: Colors.white,),
+            onPressed: (){
+            // save address to user collection
+            Navigator.push(context, MaterialPageRoute(builder: (c)=> SaveAddressScreen()));
+            },
+        ),
+        body: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+            Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                padding: EdgeInsets.all(8),
+                child: Text(
+                    "Select Address:",
+                    style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    ),
+                ),
+                ),
+            ),
+            
+            Consumer<AddressChanger>(builder: (context, address, c){
+                return Flexible(
+                child: StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance.collection("users")
+                        .doc(sharedPreferences!.getString("uid"))
+                        .collection("userAddress")
+                        .snapshots(),
+                    builder: (context, snapshot)
+                    {
+                    return !snapshot.hasData
+                        ? Center(child: circularProgress(),)
+                        : snapshot.data!.docs.length == 0
+                        ? Container()
+                        : ListView.builder(
+                                itemCount: snapshot.data!.docs.length,
+                                shrinkWrap: true,
+                                itemBuilder: (context, index)
+                                {
+                                return AddressDesign(
+                                    currentIndex: address.count,
+                                    value: index,
+                                    addressID: snapshot.data!.docs[index].id,
+                                    totalAmount: widget.totalAmount,
+                                    sellerUID: widget.sellerUID,
+                                    model: Address.fromJson(
+                                    snapshot.data!.docs[index].data()! as Map<String, dynamic>
+                                    ),
+                                );
+                                },
+                            );
+                    },
+                ),
+                );
+            }),
+            
+
+            ],
+        ),
+        );
+    }
+    }
+    ```
+
+- Creating the address.dart model
+    ```dart
+    class Address
+    {
+    String? name;
+    String? phoneNumber;
+    String? flatNumber;
+    String? city;
+    String? state;
+    String? fullAddress;
+    double? lat;
+    double? lng;
+
+    Address({
+        this.name,
+        this.phoneNumber,
+        this.flatNumber,
+        this.city,
+        this.state,
+        this.fullAddress,
+        this.lat,
+        this.lng,
+    });
+
+    Address.fromJson(Map<String, dynamic> json)
+    {
+        name = json['name'];
+        phoneNumber = json['phoneNumber'];
+        flatNumber = json['flatNumber'];
+        city = json['city'];
+        state = json['state'];
+        fullAddress = json['fullAddress'];
+        lat = json['lat'];
+        lng = json['lng'];
+    }
+
+    Map<String, dynamic> toJson()
+    {
+        final Map<String, dynamic> data = Map<String, dynamic>();
+        data['name'] = name;
+        data['phoneNumber'] = phoneNumber;
+        data['flatNumber'] = flatNumber;
+        data['city'] = city;
+        data['state'] = state;
+        data['fullAddress'] = fullAddress;
+        data['lat'] = lat;
+        data['lng'] = lng;
+
+        return data;
+    }
+    }
+    ```
+- Creating the address_desing.dart widget
+
+    ```dart
+    import 'package:flutter/material.dart';
+    import 'package:foodie_users/assistantMethods/address_changer.dart';
+    //import 'package:foodie_users/mainScreens/placed_order_screen.dart';
+    import 'package:foodie_users/maps/maps.dart';
+    import 'package:foodie_users/models/address.dart';
+    import 'package:provider/provider.dart';
+
+    class AddressDesign extends StatefulWidget
+    {
+    final Address? model;
+    final int? currentIndex;
+    final int? value;
+    final String? addressID;
+    final double? totalAmount;
+    final String? sellerUID;
+
+    AddressDesign({
+        this.model,
+        this.currentIndex,
+        this.value,
+        this.addressID,
+        this.totalAmount,
+        this.sellerUID,
+    });
+
+    @override
+    _AddressDesignState createState() => _AddressDesignState();
+    }
+
+
+
+    class _AddressDesignState extends State<AddressDesign>
+    {
+    @override
+    Widget build(BuildContext context) {
+        return InkWell(
+        onTap: ()
+        {
+            //select this address
+            Provider.of<AddressChanger>(context, listen: false).displayResult(widget.value);
+        },
+        child: Card(
+            color: Colors.grey[200],//grey.withOpacity(0.02),
+            child: Column(
+            children: [
+
+                //address info
+                Row(
+                children: [
+                    Radio(
+                    groupValue: widget.currentIndex!,
+                    value: widget.value!,
+                    activeColor: Colors.red,
+                    onChanged: (val)
+                    {
+                        //provider
+                        Provider.of<AddressChanger>(context, listen: false).displayResult(val);
+                        print(val);
+                    },
+                    ),
+                    Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                        Container(
+                        padding: const EdgeInsets.all(10),
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        child: Table(
+                            children: [
+                            TableRow(
+                                children: [
+                                const Text(
+                                    "Name: ",
+                                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                                ),
+                                Text(widget.model!.name.toString()),
+                                ],
+                            ),
+                            TableRow(
+                                children: [
+                                const Text(
+                                    "Phone Number: ",
+                                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                                ),
+                                Text(widget.model!.phoneNumber.toString()),
+                                ],
+                            ),
+                            TableRow(
+                                children: [
+                                const Text(
+                                    "Flat Number: ",
+                                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                                ),
+                                Text(widget.model!.flatNumber.toString()),
+                                ],
+                            ),
+                            TableRow(
+                                children: [
+                                const Text(
+                                    "City: ",
+                                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                                ),
+                                Text(widget.model!.city.toString()),
+                                ],
+                            ),
+                            TableRow(
+                                children: [
+                                const Text(
+                                    "State: ",
+                                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                                ),
+                                Text(widget.model!.state.toString()),
+                                ],
+                            ),
+                            TableRow(
+                                children: [
+                                const Text(
+                                    "Full Address: ",
+                                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                                ),
+                                Text(widget.model!.fullAddress.toString()),
+                                ],
+                            ),
+                            ],
+                        ),
+                        ),
+                    ],
+                    ),
+                ],
+                ),
+
+                //button
+                ElevatedButton(
+                child: const Text("Check on Maps"),
+                style: ElevatedButton.styleFrom(
+                    primary: Colors.grey[500],//black54,
+                ),
+                onPressed: ()
+                {
+                    MapsUtils.openMapWithPosition(widget.model!.lat!, widget.model!.lng!);
+                },
+                ),
+
+                //button
+                widget.value == Provider.of<AddressChanger>(context).count 
+                    ? ElevatedButton(
+                        child: const Text("Proceed"),
+                        style: ElevatedButton.styleFrom(
+                            primary: Colors.pink,
+                        ),
+                        onPressed: ()
+                        {
+
+                        },
+                    )
+                    : Container(),
+            ],
+            ),
+        ),
+        );
+    }
+    }
+    ```
+- Create the Provider: `address_changer.dart` in the assistantMehods folder that will notify to the address_design widget about the context index whe an event such a click has ocurred.
+    ```dart
+    import 'package:flutter/cupertino.dart';
+    // GO TO MAIN AND ADD THE notifier provider
+    class AddressChanger extends ChangeNotifier
+    {
+    int _counter = 0;
+    int get count => _counter;
+
+    displayResult(dynamic newValue)
+    {
+        _counter = newValue;
+        notifyListeners();
+    }
+    }
+    ```
+
+- Add the provide to the main.dart file
+```dart
+:
+import 'package:foodie_users/assistantMethods/address_changer.dart';
+:
+:
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (c) => CartItemCounter()),
+        ChangeNotifierProvider(create: (c) => TotalAmount()),
+        ChangeNotifierProvider(create: (c) => AddressChanger()),//adding the address_changer.dart
+      ],
+:
+```
+
+- Create the save_address screen to allow users add a new address
+    ```dart
+    import 'package:cloud_firestore/cloud_firestore.dart';
+    import 'package:flutter/material.dart';  //PAGE DISPLAYED AFTER ADD NEW ADDRESS
+    import 'package:fluttertoast/fluttertoast.dart';
+    import 'package:foodie_users/global/global.dart';
+    import 'package:foodie_users/models/address.dart';
+    import 'package:foodie_users/widgets/simple_app_bar.dart';
+    import 'package:foodie_users/widgets/text_field.dart';
+    import 'package:geocoding/geocoding.dart';
+    import 'package:geolocator/geolocator.dart';
+
+    class SaveAddressScreen extends StatelessWidget{
+    final _name = TextEditingController();
+    final _phoneNumber = TextEditingController();
+    final _flatNumber = TextEditingController();
+    final _city = TextEditingController();
+    final _state = TextEditingController();
+    final _completeAddress = TextEditingController();
+    final _locationController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    List<Placemark>? placemarks;
+    Position? position;
+
+    getUserLocationAddress() async
+    {
+        Position newPosition = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high
+        );
+        position = newPosition;
+        placemarks = await placemarkFromCoordinates(
+        position!.latitude, position!.longitude
+        );
+        Placemark pMark = placemarks![0];
+        String fullAddress = '${pMark.subThoroughfare} ${pMark.thoroughfare}, ${pMark.subLocality} ${pMark.locality}, ${pMark.subAdministrativeArea}, ${pMark.administrativeArea} ${pMark.postalCode}, ${pMark.country}';
+
+        _locationController.text = fullAddress;
+
+        _flatNumber.text = '${pMark.subThoroughfare} ${pMark.thoroughfare}, ${pMark.subLocality} ${pMark.locality}';
+        _city.text = '${pMark.subAdministrativeArea}, ${pMark.administrativeArea} ${pMark.postalCode}';
+        _state.text = '${pMark.country}';
+        _completeAddress.text = fullAddress;
+    }
+
+    @override
+    Widget build(BuildContext context){
+        return Scaffold(
+        appBar: SimpleAppBar(),
+        floatingActionButton: FloatingActionButton.extended(
+            label: const Text("Save Now"),
+             backgroundColor: Colors.red,
+            icon: const Icon(Icons.save),
+            onPressed: (){
+            //save address info
+            if(formKey.currentState!.validate())
+            {
+                final model = Address(
+                name: _name.text.trim(),
+                state: _state.text.trim(),
+                fullAddress: _completeAddress.text.trim(),
+                phoneNumber: _phoneNumber.text.trim(),
+                flatNumber: _flatNumber.text.trim(),
+                city: _city.text.trim(),
+                lat: position!.latitude,
+                lng: position!.longitude,
+                ).toJson();
+                
+                FirebaseFirestore.instance.collection("users")
+                    .doc(sharedPreferences!.getString("uid"))
+                    .collection("userAddress")
+                    .doc(DateTime.now().millisecondsSinceEpoch.toString())
+                    .set(model).then((value)
+                {
+                Fluttertoast.showToast(msg: "New Address has been saved.");
+                formKey.currentState!.reset();
+                });
+            }
+            },
+        ),
+        body:  SingleChildScrollView(
+            child: Column(
+            children: [
+                const SizedBox(height: 6,),
+                const Align(
+                child: Padding(
+                    padding: EdgeInsets.all(8),
+                    child: Text(
+                    "Save New Address:",
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                    ),
+                    ),
+                ),
+                ),
+                ListTile(
+                leading: const Icon(
+                    Icons.person_pin_circle,
+                    color: Colors.black,
+                    size: 35,
+                ),
+                title: Container(
+                    width: 250,
+                    child: TextField(
+                    style: const TextStyle(
+                        color: Colors.black,
+                    ),
+                    controller: _locationController,
+                    decoration: const InputDecoration(
+                        hintText: "What's your address?",
+                        hintStyle: TextStyle(
+                        color: Colors.black,
+                        )
+                    ),
+                    ),
+                ),
+                ),
+                const SizedBox(height: 6,),
+                ElevatedButton.icon(
+                label: const Text(
+                    "Get my location",
+                    style: TextStyle(color: Colors.white),
+                ),
+                icon: const Icon(Icons.location_on, color: Colors.white,),
+                style: ButtonStyle(
+                    backgroundColor:  MaterialStateProperty.all<Color>(Colors.red),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        side: const BorderSide(color: Colors.red),
+                    ),
+                    ),
+                ),
+                onPressed: (){
+                    //get current location function
+                    getUserLocationAddress();
+                },
+                ),
+                Form(
+                key: formKey,
+                child: Column(
+                    children: [
+                    MyTextField(
+                        hint: "Name",
+                        controller: _name,
+                    ),
+                    MyTextField(
+                        hint: "Phone Number",
+                        controller: _phoneNumber,
+                    ),
+                    MyTextField(
+                        hint: "City",
+                        controller: _city,
+                    ),
+                    MyTextField(
+                        hint: "State / Country",
+                        controller: _state,
+                    ),
+                    MyTextField(
+                        hint: "Address Line",
+                        controller: _flatNumber,
+                    ),
+                    MyTextField(
+                        hint: "Complete Address",
+                        controller: _completeAddress,
+                    ),
+                    ],
+                ),
+                ),
+            ],
+            ),
+        ),
+        );
+    }
+    }
+    ```
+
+- Creating the map to allow users to Check their location on map and edit
+    
+    ```dart
+    import 'package:url_launcher/url_launcher.dart'; //add to pubscpe url_launcher
+
+    class MapsUtils
+    {
+    MapsUtils._();
+
+    //latitude longitude
+    static Future<void> openMapWithPosition(double latitude, double longitude) async
+    {
+        String googleMapUrl = "https://www.google.com/maps/search/?api=1&query=$latitude,$longitude";
+
+
+        // ignore: deprecated_member_use
+        if(await canLaunch(googleMapUrl))
+        {
+        // ignore: deprecated_member_use
+        await launch(googleMapUrl);
+        }
+        else
+        {
+        throw "Could not open the map.";
+        }
+    }
+
+    //text address
+    static Future<void> openMapWithAddress(String fullAddress) async
+    {
+        String query = Uri.encodeComponent(fullAddress);
+        String googleMapUrl = "https://www.google.com/maps/search/?api=1&query=$query";
+
+        if(await canLaunch(googleMapUrl))
+        {
+        await launch(googleMapUrl);
+        }
+        else
+        {
+        throw "Could not open the map.";
+        }
+    }
+    }
+    ```
+    Test 9.1: Compiled @ the branch of [`ver-1.5`](https://github.com/jatolentino/Flutter-Foodie-User/tree/v1.5)
+
+    <p align="center">
+    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.5/sources/step9-test-1.png" width="600">
+    </p>

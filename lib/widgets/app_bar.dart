@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:foodie_users/assistantMethods/cart_item_counter.dart';
+import 'package:foodie_users/global/global.dart';
 import 'package:foodie_users/mainScreens/cart_screen.dart';
+import 'package:foodie_users/mainScreens/cart_screen_empty.dart';
 import 'package:provider/provider.dart';
 
 class MyAppBar extends StatefulWidget with PreferredSizeWidget{
@@ -21,6 +23,7 @@ class MyAppBar extends StatefulWidget with PreferredSizeWidget{
 
 class _MyAppBarState extends State<MyAppBar>{
   @override
+  var totalEmpty;
   Widget build(BuildContext context){
     return AppBar(
       flexibleSpace: Container(
@@ -56,7 +59,12 @@ class _MyAppBarState extends State<MyAppBar>{
               icon: const Icon(Icons.shopping_cart),
               onPressed: (){
               // send user to cart screen
+                totalEmpty = sharedPreferences!.getStringList("userCart")!.length;
+                if (totalEmpty!=1){
                   Navigator.push(context, MaterialPageRoute(builder: (c)=> CartScreen(sellerUID: widget.sellerUID)));
+                } else{
+                  Navigator.push(context, MaterialPageRoute(builder: (c)=> CartScreenSimple(sellerUID: widget.sellerUID)));
+                }
               }
             ),
             Positioned(

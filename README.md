@@ -2283,5 +2283,6 @@ class MyApp extends StatelessWidget {
     Test 9.1: Compiled @ the branch of [`ver-1.5`](https://github.com/jatolentino/Flutter-Foodie-User/tree/v1.5)
 
     <p align="center">
-    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.5/sources/step9-test-1.png" width="600">
+    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.5/sources/step9-test-1.png" width="600"> <br/>
+     <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.5/sources/step9-test-2.png" width="600">
     </p>

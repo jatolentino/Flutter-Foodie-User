@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:foodie_users/assistantMethods/address_changer.dart';
+import 'package:foodie_users/mainScreens/placed_order_screen.dart';
 //import 'package:foodie_users/mainScreens/placed_order_screen.dart';
 import 'package:foodie_users/maps/maps.dart';
 import 'package:foodie_users/models/address.dart';
@@ -151,15 +152,15 @@ class _AddressDesignState extends State<AddressDesign>
                       ),
                       onPressed: ()
                       {
-                        // Navigator.push(
-                        //     context, MaterialPageRoute(
-                        //     builder: (c)=> PlacedOrderScreen(
-                        //       addressID: widget.addressID,
-                        //       totalAmount: widget.totalAmount,
-                        //       sellerUID: widget.sellerUID,
-                        //     )
-                        //   )
-                        // );
+                        Navigator.push(
+                            context, MaterialPageRoute(
+                            builder: (c)=> PlacedOrderScreen(
+                              addressID: widget.addressID,
+                              totalAmount: widget.totalAmount,
+                              sellerUID: widget.sellerUID,
+                            )
+                          )
+                        );
                       },
                   )
                 : Container(),

@@ -176,7 +176,7 @@ class _CartScreenState extends State<CartScreen> {
             stream: FirebaseFirestore.instance
               .collection("items")
               .where("itemID", whereIn: separateItemIDs())
-              .orderBy("publishedDate", descending: true)
+              .orderBy("publishedDate", descending: false) //was false, set to true both descending with my_orders_screen line 28
               .snapshots(),
             builder: (context, snapshot)
             {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:foodie_users/authentication/auth_screen.dart';
 import 'package:foodie_users/global/global.dart';
+import 'package:foodie_users/mainScreens/home_screen.dart';
+import 'package:foodie_users/mainScreens/my_orders_screen.dart';
 
 class MyDrawer extends StatelessWidget{ //important to set to true in homescreen automaticallyImplyLeading: true, OR SIMPLY DETELETE THE FALSE STATEMENT
 
@@ -55,7 +57,7 @@ class MyDrawer extends StatelessWidget{ //important to set to true in homescreen
                     style: TextStyle(color: Colors.black),
                   ),
                   onTap: (){
-
+                    Navigator.push(context, MaterialPageRoute(builder: (c)=> HomeScreen()));
                   },
                 ),
                 ListTile(
@@ -65,7 +67,7 @@ class MyDrawer extends StatelessWidget{ //important to set to true in homescreen
                     style: TextStyle(color: Colors.black),
                   ),
                   onTap: (){
-                    
+                    Navigator.push(context, MaterialPageRoute(builder: (c)=> MyOrdersScreen()));
                   },
                 ),
                 ListTile(

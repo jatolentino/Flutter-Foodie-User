@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
 class SimpleAppBar extends StatelessWidget with PreferredSizeWidget{
-
+  String? title;
   final PreferredSizeWidget? bottom;
-  SimpleAppBar({this.bottom});
+  SimpleAppBar({this.bottom, this.title});
 
   Size get preferredSize => bottom==null?Size(56, AppBar().preferredSize.height):Size(56, 80 + AppBar().preferredSize.height); // fixes underline: class SimpleAppBar extends ... of above
-
   @override
   Widget build(BuildContext context){
     return AppBar(
@@ -28,8 +27,8 @@ class SimpleAppBar extends StatelessWidget with PreferredSizeWidget{
         ),
       ),
       centerTitle: true,
-      title: const Text(
-        "Foodie",
+      title: Text(
+        title!,
         style: TextStyle(fontSize: 45.0, letterSpacing: 3, color: Colors.white, fontFamily: "Signatra"),
       ),
     );

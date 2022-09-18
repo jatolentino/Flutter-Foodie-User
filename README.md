@@ -2286,3 +2286,762 @@ class MyApp extends StatelessWidget {
     <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.5/sources/step9-test-1.png" width="600"> <br/>
      <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.5/sources/step9-test-2.png" width="600">
     </p>
+
+## 10. Create the placed order screen
+- In the address_design.dart add the placed_order_screen.dart
+
+    ```dart
+    :
+    onPressed: ()
+        {
+        Navigator.push(
+            context, MaterialPageRoute(
+            builder: (c)=> PlacedOrderScreen(
+                addressID: widget.addressID,
+                totalAmount: widget.totalAmount,
+                sellerUID: widget.sellerUID,
+            )
+            )
+        );
+        },
+    :
+    ```
+
+- Create the mainScreens/placed_oder_screen.dart to confim the order
+    ```dart
+    import 'package:cloud_firestore/cloud_firestore.dart';
+    import 'package:flutter/material.dart';
+    import 'package:fluttertoast/fluttertoast.dart';
+    import 'package:foodie_users/assistantMethods/assistant_methods.dart';
+    import 'package:foodie_users/global/global.dart';
+
+    import 'home_screen.dart';
+
+
+    class PlacedOrderScreen extends StatefulWidget
+    {
+    String? addressID;
+    double? totalAmount;
+    String? sellerUID;
+
+    PlacedOrderScreen({this.sellerUID, this.totalAmount, this.addressID});
+
+    @override
+    _PlacedOrderScreenState createState() => _PlacedOrderScreenState();
+    }
+
+
+
+    class _PlacedOrderScreenState extends State<PlacedOrderScreen>
+    {
+    String orderId = DateTime.now().millisecondsSinceEpoch.toString();
+
+    addOrderDetails()
+    {
+        writeOrderDetailsForUser({
+        "addressID": widget.addressID,
+        "totalAmount": widget.totalAmount,
+        "orderBy": sharedPreferences!.getString("uid"),
+        "productIDs": sharedPreferences!.getStringList("userCart"),
+        "paymentDetails": "Cash on Delivery",
+        "orderTime": orderId,
+        "isSuccess": true,
+        "sellerUID": widget.sellerUID,
+        "riderUID": "",
+        "status": "normal",
+        "orderId": orderId,
+        });
+
+        writeOrderDetailsForSeller({
+        "addressID": widget.addressID,
+        "totalAmount": widget.totalAmount,
+        "orderBy": sharedPreferences!.getString("uid"),
+        "productIDs": sharedPreferences!.getStringList("userCart"),
+        "paymentDetails": "Cash on Delivery",
+        "orderTime": orderId,
+        "isSuccess": true,
+        "sellerUID": widget.sellerUID,
+        "riderUID": "",
+        "status": "normal",
+        "orderId": orderId,
+        }).whenComplete((){
+        clearCartNow(context);
+        setState(() {
+            orderId="";
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+            Fluttertoast.showToast(msg: "Congratulations, Order has been placed successfully.");
+        });
+        });
+    }
+    
+    Future writeOrderDetailsForUser(Map<String, dynamic> data) async
+    {
+        await FirebaseFirestore.instance
+            .collection("users")
+            .doc(sharedPreferences!.getString("uid"))
+            .collection("orders")
+            .doc(orderId)
+            .set(data);
+    }
+
+    Future writeOrderDetailsForSeller(Map<String, dynamic> data) async
+    {
+        await FirebaseFirestore.instance
+            .collection("orders")
+            .doc(orderId)
+            .set(data);
+    }
+
+    @override
+    Widget build(BuildContext context)
+    {
+        return Material(
+        child: Container(
+            decoration: BoxDecoration(
+            gradient: LinearGradient(
+                colors: [
+                Colors.pink.shade300,
+                Colors.red.shade300,
+                ],
+                begin: const FractionalOffset(0.0, 0.5),
+                end: const FractionalOffset(1.0, 0.5),
+                stops: [0.0, 1.0],
+                tileMode: TileMode.clamp,
+            ),
+            borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+                Image.asset("images/delivery.jpg"),
+
+                const SizedBox(height: 12,),
+
+                ElevatedButton(
+                child: const Text("Place Order"),
+                style: ElevatedButton.styleFrom(
+                    primary: Colors.cyan,
+                ),
+                onPressed: ()
+                {
+                    addOrderDetails();
+                },
+                ),
+
+            ],
+            ),
+        ),
+        );
+    }
+    }
+    ```
+    Test 10: Compiled @ the branch of [`ver-1.6`](https://github.com/jatolentino/Flutter-Foodie-User/tree/v1.6)
+
+    <p align="center">
+    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.6/sources/step10-test-1.png" width="150">;
+    </p>
+
+### 11. Create the order_card widget
+- In the widgets folder create the order_card.dart file for the the design of the my_orders_screen
+    
+    ```dart
+    import 'package:cloud_firestore/cloud_firestore.dart';
+    import 'package:flutter/material.dart';
+    //import 'package:foodie_users/mainScreens/order_details_screen.dart';
+    import 'package:foodie_users/models/items.dart';
+    import 'package:foodie_users/mainScreens/order_details_screen.dart';
+
+
+    class OrderCard extends StatelessWidget
+    {
+    final int? itemCount;
+    final List<DocumentSnapshot>? data;
+    final String? orderID;
+    final List<String>? seperateQuantitiesList;
+
+    OrderCard({
+        this.itemCount,
+        this.data,
+        this.orderID,
+        this.seperateQuantitiesList,
+    });
+
+    @override
+    Widget build(BuildContext context) {
+        return InkWell(
+        onTap: ()
+        {
+            Navigator.push(context, MaterialPageRoute(builder: (c)=> OrderDetailsScreen(orderID: orderID)));
+        },
+        child: Container(
+            decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                colors: [
+                    Colors.black12,
+                    Colors.white54,
+                ],
+                begin:  FractionalOffset(0.0, 0.0),
+                end:  FractionalOffset(1.0, 0.0),
+                stops: [0.0, 1.0],
+                tileMode: TileMode.clamp,
+                )
+            ),
+            padding: const EdgeInsets.all(10),
+            margin: const EdgeInsets.all(10),
+            height: itemCount! * 125,
+            child: ListView.builder(
+            itemCount: itemCount,
+            physics: NeverScrollableScrollPhysics(),
+            itemBuilder: (context, index)
+            {
+                Items model = Items.fromJson(data![index].data()! as Map<String, dynamic>);
+                return placedOrderDesignWidget(model, context, seperateQuantitiesList![index]);
+            },
+            ),
+        ),
+        );
+    }
+    }
+
+
+
+
+    Widget placedOrderDesignWidget(Items model, BuildContext context, seperateQuantitiesList)
+    {
+    return Container(
+        width: MediaQuery.of(context).size.width,
+        height: 120,
+        color: Colors.grey[200],
+        child: Row(
+        children: [
+            Image.network(model.thumbnailUrl!, width: 120,),
+            const SizedBox(width: 10.0,),
+            Expanded(
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+
+                const SizedBox(
+                    height: 20,
+                ),
+
+                Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                    Expanded(
+                        child: Text(
+                        model.title!,
+                        style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontFamily: "Acme",
+                        ),
+                        ),
+                    ),
+                    const SizedBox(
+                        width: 10,
+                    ),
+                    const Text(
+                        "€ ",
+                        style: TextStyle(fontSize: 16.0, color: Colors.blue),
+                    ),
+                    Text(
+                        model.price.toString(),
+                        style: const TextStyle(
+                        color: Colors.blue,
+                        fontSize: 18.0,
+                        ),
+                    ),
+                    ],
+                ),
+
+                const SizedBox(
+                    height: 20,
+                ),
+
+                Row(
+                    children: [
+                    const Text(
+                        "x ",
+                        style: TextStyle(
+                            color: Colors.black54,
+                            fontSize: 14,
+                        ),
+                    ),
+                    Expanded(
+                        child: Text(
+                        seperateQuantitiesList,
+                        style: const TextStyle(
+                            color: Colors.black54,
+                            fontSize: 30,
+                            fontFamily: "Acme",
+                        ),
+                        ),
+                    ),
+                    ],
+                ),
+
+                ],
+            ),
+            ),
+        ],
+        ),
+    );
+    }`
+
+    ```
+- In my_drawer.dart add the MyOrdersScreen'
+
+    ```dart
+    :
+    ListTile(
+        leading: const Icon(Icons.reorder, color: Colors.red,),
+        title: const Text(
+        "My Orders",
+        style: TextStyle(color: Colors.black),
+        ),
+        onTap: (){
+        Navigator.push(context, MaterialPageRoute(builder: (c)=> MyOrdersScreen()));
+        },
+    ),
+    :
+    ````
+
+- Add the constructor title to the simple_app_bar.dart
+    ```dart
+    :
+
+    String? title;
+    final PreferredSizeWidget? bottom;
+    SimpleAppBar({this.bottom, this.title});
+
+    Size get preferredSize => bottom==null?Size(56, AppBar().preferredSize.height):Size(56, 80 + AppBar().preferredSize.height); // fixes underline: class SimpleAppBar extends ... of above
+
+    :
+    ```
+
+- Add the title to the save_address_screen.dart
+
+```dart
+:
+  @override
+  Widget build(BuildContext context){
+    return Scaffold(
+      appBar: SimpleAppBar(title: "Foodie",),
+      floatingActionButton: FloatingActionButton.extended(
+:
+```
+
+- Create the my_orders_screen.dart
+
+    ```dart
+    import 'package:cloud_firestore/cloud_firestore.dart';
+    import 'package:flutter/material.dart';
+    import 'package:foodie_users/assistantMethods/assistant_methods.dart';
+    import 'package:foodie_users/global/global.dart';
+    import 'package:foodie_users/widgets/order_card.dart';
+    import 'package:foodie_users/widgets/progress_bar.dart';
+    import 'package:foodie_users/widgets/simple_app_bar.dart';
+
+    class MyOrdersScreen extends StatefulWidget
+    {
+    @override
+    _MyOrdersScreenState createState() => _MyOrdersScreenState();
+    }
+
+    class _MyOrdersScreenState extends State<MyOrdersScreen>
+    {
+    @override
+    Widget build(BuildContext context) {
+        return SafeArea(
+        child: Scaffold(
+            appBar: SimpleAppBar(title: "My Orders",),
+            body: StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection("users")
+                .doc(sharedPreferences!.getString("uid"))
+                .collection("orders")
+                .where("status", isEqualTo: "normal")
+                .orderBy("orderTime", descending: false)  ////////true index-> false index-> true again
+                .snapshots(),
+            builder: (c, snapshot)
+            {
+                return snapshot.hasData
+                    ? ListView.builder(
+                        itemCount: snapshot.data!.docs.length,
+                        itemBuilder: (c, index)
+                        {
+                        return FutureBuilder<QuerySnapshot>(
+                            future: FirebaseFirestore.instance
+                                .collection("items")
+                                .where("itemID", whereIn: separateOrderItemIDs((snapshot.data!.docs[index].data()! as Map<String, dynamic>) ["productIDs"]))
+                                .where("orderBy", whereIn: (snapshot.data!.docs[index].data()! as Map<String, dynamic>)["uid"])
+                                .orderBy("publishedDate", descending: false)
+                                .get(),
+                            builder: (c, snap)
+                            {
+                            return snap.hasData
+                                ? OrderCard(
+                                itemCount: snap.data!.docs.length,
+                                data: snap.data!.docs,
+                                orderID: snapshot.data!.docs[index].id,
+                                seperateQuantitiesList: separateOrderItemQuantities((snapshot.data!.docs[index].data()! as Map<String, dynamic>)["productIDs"]),
+                            )
+                                : Center(child: circularProgress());
+                            },
+                        );
+                        },
+                    )
+                    : Center(child: circularProgress(),);
+            },
+            ),
+        ),
+        );
+    }
+    }
+
+    ```
+
+- Create an assistant method to separe the items in the cart orders, go to assistant_methods.dart
+
+```dart
+separateOrderItemIDs(orderIDs)
+{
+List<String> separateItemIDsList=[], defaultItemList=[];
+int i=0;
+
+defaultItemList = List<String>.from(orderIDs);
+
+for(i; i<defaultItemList.length; i++)
+{
+    //56557657:7
+    String item = defaultItemList[i].toString();
+    var pos = item.lastIndexOf(":");
+
+    //56557657
+    String getItemId = (pos != -1) ? item.substring(0, pos) : item;
+
+    print("\nThis is itemID now = " + getItemId);
+
+    separateItemIDsList.add(getItemId);
+}
+
+print("\nThis is Items List now = ");
+print(separateItemIDsList);
+
+return separateItemIDsList;
+}
+```
+
+- Create the order_details_screen to see the details of each orders in a separate screen
+
+```dart
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:foodie_users/global/global.dart';
+import 'package:foodie_users/models/address.dart';
+import 'package:foodie_users/widgets/progress_bar.dart';
+import 'package:foodie_users/widgets/shipment_address_design.dart';
+import 'package:foodie_users/widgets/status_banner.dart';
+import 'package:intl/intl.dart';
+
+class OrderDetailsScreen extends StatefulWidget
+{
+  final String? orderID;
+
+  OrderDetailsScreen({this.orderID});
+
+  @override
+  _OrderDetailsScreenState createState() => _OrderDetailsScreenState();
+}
+
+class _OrderDetailsScreenState extends State<OrderDetailsScreen>
+{
+  String orderStatus = "";
+
+  @override
+  Widget build(BuildContext context)
+  {
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: FutureBuilder<DocumentSnapshot>(
+          future: FirebaseFirestore.instance
+              .collection("users")
+              .doc(sharedPreferences!.getString("uid"))
+              .collection("orders")
+              .doc(widget.orderID)
+              .get(),
+          builder: (c, snapshot)
+          {
+            Map? dataMap;
+            if(snapshot.hasData)
+            {
+              dataMap = snapshot.data!.data()! as Map<String, dynamic>;
+              orderStatus = dataMap["status"].toString();
+            }
+            return snapshot.hasData
+                ? Container(
+                    child: Column(
+                      children: [
+                        StatusBanner(
+                          status: dataMap!["isSuccess"],
+                          orderStatus: orderStatus,
+                        ),
+                        const SizedBox(
+                          height: 10.0,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              "\$  " + dataMap["totalAmount"].toString(),
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            "Order Id = " + widget.orderID!,
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0), //add the time package intl
+                          child: Text(
+                            "Order at: " +
+                                DateFormat("dd MMMM, yyyy - hh:mm aa")
+                                    .format(DateTime.fromMillisecondsSinceEpoch(int.parse(dataMap["orderTime"]))),
+                            style: const TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
+                        ),
+                        const Divider(thickness: 4,),
+                        orderStatus == "ended"
+                            ? Image.asset("images/delivered.jpg")
+                            : Image.asset("images/state.jpg"),
+                        const Divider(thickness: 4,),
+                        FutureBuilder<DocumentSnapshot>(
+                          future: FirebaseFirestore.instance
+                              .collection("users")
+                              .doc(sharedPreferences!.getString("uid"))
+                              .collection("userAddress")
+                              .doc(dataMap["addressID"])
+                              .get(),
+                          builder: (c, snapshot)
+                          {
+                            return snapshot.hasData
+                                ? ShipmentAddressDesign(
+                                    model: Address.fromJson(
+                                      snapshot.data!.data()! as Map<String, dynamic>
+                                    ),
+                                  )
+                                : Center(child: circularProgress(),);
+                          },
+                        ),
+                      ],
+                    ),
+                  )
+                : Center(child: circularProgress(),);
+          },
+        ),
+      ),
+    );
+  }
+}
+```
+
+- Create a status_banner widget
+```dart
+import 'package:flutter/material.dart';
+import 'package:foodie_users/mainScreens/home_screen.dart';
+
+class StatusBanner extends StatelessWidget
+{
+  final bool? status;
+  final String? orderStatus;
+
+  StatusBanner({this.status, this.orderStatus});
+
+  @override
+  Widget build(BuildContext context)
+  {
+    String? message;
+    IconData? iconData;
+
+    status! ? iconData = Icons.done : iconData = Icons.cancel;
+    status! ? message = "Successful" : message = "Unsuccessful";
+
+    return Container(
+      decoration: BoxDecoration(
+          gradient: LinearGradient( //const linearGradient
+                    colors: [
+                      Colors.pink.shade400,
+                      Colors.red.shade400,
+                    ],
+                    begin: const FractionalOffset(0.0, 0.5),
+                    end: const FractionalOffset(1.0, 0.5),
+                    stops: [0.0, 1.0],
+                    tileMode: TileMode.clamp,
+                  ),
+      ),
+      height: 40,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          GestureDetector(
+            onTap: ()
+            {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+            },
+            child: const Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(
+            width: 20,
+          ),
+          Text(
+            orderStatus == "ended"
+                ? "Parcel Delivered $message"
+                : "Order Placed $message",
+            style: const TextStyle(color: Colors.white),
+          ),
+          const SizedBox(
+            width: 5,
+          ),
+          CircleAvatar(
+            radius: 8,
+            backgroundColor: Colors.grey,
+            child: Center(
+              child: Icon(
+                iconData,
+                color: Colors.white,
+                size: 14,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+```
+
+- Create a shipment address widget
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:foodie_users/mainScreens/home_screen.dart';
+import 'package:foodie_users/models/address.dart';
+import 'package:foodie_users/splashScreen/splash_screen.dart';
+
+class ShipmentAddressDesign extends StatelessWidget
+{
+  final Address? model;
+
+  ShipmentAddressDesign({this.model});
+
+  @override
+  Widget build(BuildContext context)
+  {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.all(10.0),
+          child: Text(
+              'Shipping Details:',
+              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)
+          ),
+        ),
+        const SizedBox(
+          height: 6.0,
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 90, vertical: 5),
+          width: MediaQuery.of(context).size.width,
+          child: Table(
+            children: [
+              TableRow(
+                children: [
+                  const Text(
+                    "Name",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  Text(model!.name!),
+                ],
+              ),
+              TableRow(
+                children: [
+                  const Text(
+                    "Phone Number",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  Text(model!.phoneNumber!),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(
+          height: 20,
+        ),
+        Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Text(
+            model!.fullAddress!,
+            textAlign: TextAlign.justify,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Center(
+            child: InkWell(
+              onTap: ()
+              {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const MySplashScreen()));
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                    gradient: LinearGradient( //const linearGradient
+                    colors: [
+                      Colors.pink.shade400,
+                      Colors.red.shade400,
+                    ],
+                    begin: const FractionalOffset(0.0, 0.5),
+                    end: const FractionalOffset(1.0, 0.5),
+                    stops: [0.0, 1.0],
+                    tileMode: TileMode.clamp,
+                  ),
+                ),
+                width: MediaQuery.of(context).size.width - 40,
+                height: 50,
+                child: const Center(
+                  child: Text(
+                    "Go Back",
+                    style: TextStyle(color: Colors.white, fontSize: 15.0),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+```
+
+Test 11: Compiled @ the branch of [`ver-1.6`](https://github.com/jatolentino/Flutter-Foodie-User/tree/v1.6)
+
+<p align="center">
+<img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.6/sources/step11-test-1.png" width="600">
+</p>

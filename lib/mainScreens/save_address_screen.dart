@@ -44,7 +44,7 @@ class SaveAddressScreen extends StatelessWidget{
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      appBar: SimpleAppBar(),
+      appBar: SimpleAppBar(title: "Foodie",),
       floatingActionButton: FloatingActionButton.extended(
         label: const Text("Save Now"),
         backgroundColor: Colors.red,

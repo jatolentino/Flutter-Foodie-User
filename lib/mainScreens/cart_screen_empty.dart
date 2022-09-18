@@ -13,16 +13,16 @@ import 'package:foodie_users/widgets/progress_bar.dart';
 import 'package:foodie_users/widgets/text_widget_header.dart';
 import 'package:provider/provider.dart';
 
-class CartScreen extends StatefulWidget {
+class CartScreenSimple extends StatefulWidget {
   
   final String? sellerUID;
-  CartScreen({this.sellerUID});
+  CartScreenSimple({this.sellerUID});
 
   @override
-  _CartScreenState createState() => _CartScreenState();
+  _CartScreenSimpleState createState() => _CartScreenSimpleState();
 }
 
-class _CartScreenState extends State<CartScreen> {
+class _CartScreenSimpleState extends State<CartScreenSimple> {
   List<int>? separateItemQuantityList;
   num totalAmount = 0;
 
@@ -76,8 +76,9 @@ class _CartScreenState extends State<CartScreen> {
                 icon: const Icon(Icons.shopping_cart),
                 onPressed: (){
                 // send user to cart screen
-                  //Navigator.push(context, MaterialPageRoute(builder: (c)=> CartScreen(sellerUID: widget.sellerUID)));
+                  //Navigator.push(context, MaterialPageRoute(builder: (c)=> CartScreenSimple(sellerUID: widget.sellerUID)));
                   //clickeds
+                  print("clicked");
                 },
               ),
               Positioned(
@@ -123,6 +124,9 @@ class _CartScreenState extends State<CartScreen> {
               heroTag: "btn1",
               onPressed: (){
                 clearCartNow(context);
+                Navigator.push(context, MaterialPageRoute(builder: (c)=> const MySplashScreen()));
+
+                Fluttertoast.showToast(msg: "Cart has been cleared.");
               },
             ),
           ),
@@ -142,81 +146,6 @@ class _CartScreenState extends State<CartScreen> {
             ),
           ),
 
-        ],
-      ),
-      body: CustomScrollView(
-        slivers: [
-          SliverPersistentHeader(
-            pinned: true, 
-            delegate: TextWidgetHeader(title: "My Cart List "),//"Total amount 120"),
-          ),
-
-          SliverToBoxAdapter(
-            child: Consumer2<TotalAmount, CartItemCounter>(builder: (context, amountProvider, cartProvider, c)
-            {
-              return Padding(
-                padding: const EdgeInsets.all(8),
-                child: Center(
-                  child: cartProvider.count == 0
-                  ? Container ()
-                  : Text(
-                    "Total Price \$ " + amountProvider.tAmount.toString(),
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                    )
-                  )
-                )
-              );
-            }),
-          ),
-
-          StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-              .collection("items")
-              .where("itemID", whereIn: separateItemIDs())
-              .orderBy("publishedDate", descending: true)
-              .snapshots(),
-            builder: (context, snapshot)
-            {
-              return !snapshot.hasData
-              ? SliverToBoxAdapter(child: Center(child: circularProgress(),),)
-              : snapshot.data!.docs.length == 0
-              ?
-              Container()
-              : SliverList(
-                delegate: SliverChildBuilderDelegate((context, index){
-                  Items model = Items.fromJson(
-                    snapshot.data!.docs[index].data()! as Map<String, dynamic>,
-                  );
-                  
-                  if(index == 0){
-                    totalAmount = 0;
-                    totalAmount = totalAmount + model.price! * separateItemQuantityList![index]; //#*price
-                  }
-
-                  else{
-                    totalAmount = totalAmount + model.price! * separateItemQuantityList![index]; //#*price
-                  }
-
-                  if(snapshot.data!.docs.length -1 == index){ //substract the gargabe constant from database = last index/iteration ended
-                    WidgetsBinding.instance.addPostFrameCallback((timeStamp){ ///WidgetsBinding!.instance.addPostFrameCallback((timeStamp){
-                      Provider.of<TotalAmount>(context, listen: false).displayTotalAmount(totalAmount.toDouble()); //insertin the total amount >> Go to define provider of total amount in main.dart
-                    });
-                  }
-
-                  return CartItemDesign(
-                    model: model,
-                    context: context,
-                    quanNumber: separateItemQuantityList![index],//separateItemQuantitiesList: [index],
-                    );
-                  },
-                  childCount: snapshot.hasData ? snapshot.data!.docs.length: 0,
-                ),
-              );
-            },
-          ),
         ],
       ),
     );

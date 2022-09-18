@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:foodie_users/assistantMethods/address_changer.dart';
 import 'package:foodie_users/assistantMethods/cart_item_counter.dart';
 import 'package:foodie_users/assistantMethods/total_amount.dart';
 import 'package:foodie_users/splashScreen/splash_screen.dart';
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (c) => CartItemCounter()),
         ChangeNotifierProvider(create: (c) => TotalAmount()),  //add the widget total_amount.dart
+        ChangeNotifierProvider(create: (c) => AddressChanger()),  //adding the address_changer.dart
       ],
       child: MaterialApp(
         title: 'Users App',

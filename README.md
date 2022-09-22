@@ -3105,5 +3105,5 @@ Test 11: Compiled @ the branch of [`ver-1.6`](https://github.com/jatolentino/Flu
     </p>
     - Adding the search functionality of look for all the restaurants available
     <p align="center">
-    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.7/sources/step12-test-1.jpeg" width="600">
+    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.7/sources/step12-test-2.jpeg" width="600">
     </p>

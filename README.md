@@ -3101,9 +3101,9 @@ Test 11: Compiled @ the branch of [`ver-1.6`](https://github.com/jatolentino/Flu
 - Implementing the drawer
     - Pushing historic orders
     <p align="center">
-    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.6/sources/step12-test-1.jpeg" width="600">
+    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.7/sources/step12-test-1.jpeg" width="600">
     </p>
     - Adding the search functionality of look for all the restaurants available
     <p align="center">
-    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.6/sources/step12-test-1.jpeg" width="600">
+    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.7/sources/step12-test-1.jpeg" width="600">
     </p>

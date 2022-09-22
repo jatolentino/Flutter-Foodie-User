@@ -1,6 +1,55 @@
-# foodie_users
+# Foodie User Mobile App for IOS and Android
 
-A new Flutter project.
+This app has the following features:
+- Login/Register System
+- Firebase database integration
+- Drawer Screen with tabs: Home, My orders, History, Search, Add New Address and Sign out
+- Add menu items to cart and place an order
+- Google maps integration to select a shipping address
+
+## Result of the project
+The final result of this project belongs to the ver [`ver-1.5`](https://github.com/jatolentino/Flutter-Foodie/tree/v1.5).
+
+<!-- login drawer -->
+<p align="center">
+    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.7/sources/final_user_1.jpeg" width="600">
+<br/>
+<p align="center">
+    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.2/sources/step4-test-1.png" width="150">  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.2/sources/step4-test-2.png" width="550">
+    </p>
+
+<!-- add to cart -->
+<br/>
+<p align="center">
+    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.3/sources/step7-test-1.png" width="600">
+
+<br/>
+<!-- place order -->
+<p align="center">
+    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.5/sources/step9-test-1.png" width="600"> <br/>
+     <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.5/sources/step9-test-2.png" width="600">
+    </p>
+
+
+
+
+## How to run the project?
+
+Clone the repository and open the terminal and navigate to the `ios` folder, then run:
+
+    ```bash
+    flutter pub add firebase_auth
+    flutter pub add firebase_core
+    //sudo gem install cocoapods
+    flutter pub get
+    pod install
+    ```
+
+- Configure the firebase database, following the link [`Step 9.1: Create a firebase project`](https://github.com/jatolentino/Flutter-Foodie#configure_firebase)
+
+- Enjoy!
+
 
 ## Follow along
 
@@ -3045,3 +3094,15 @@ Test 11: Compiled @ the branch of [`ver-1.6`](https://github.com/jatolentino/Flu
 <p align="center">
 <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.6/sources/step11-test-1.png" width="600">
 </p>
+
+## 12. Final touchups
+
+- Implementing the drawer
+    - Pushing historic orders
+    <p align="center">
+    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.6/sources/step12-test-1.jpeg" width="600">
+    </p>
+    - Adding the search functionality of look for all the restaurants available
+    <p align="center">
+    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.6/sources/step12-test-1.jpeg" width="600">
+    </p>

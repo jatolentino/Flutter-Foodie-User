@@ -36,14 +36,15 @@ The final result of this project belongs to the ver [`ver-1.5`](https://github.c
 
 ## How to run the project?
 
-Clone the repository and open the terminal and navigate to the `ios` folder, then run:
+Clone the repository an unrar it, open the terminal and navigate to the folder project and run the command below to install all the dependecies (according to the pubscpe.yaml)
 
     ```bash
-    flutter pub add firebase_auth
-    flutter pub add firebase_core
-    //sudo gem install cocoapods
     flutter pub get
-    pod install
+    ```
+Navigate to the `ios` folder and run:
+
+    ```bash
+        pod install
     ```
 
 - Configure the firebase database, following the link [`Step 9.1: Create a firebase project`](https://github.com/jatolentino/Flutter-Foodie#configure_firebase)

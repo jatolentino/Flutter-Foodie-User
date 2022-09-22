@@ -12,7 +12,7 @@ The final result of this project belongs to the ver [`ver-1.5`](https://github.c
 
 <!-- login drawer -->
 <p align="center">
-    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.7/sources/final_user_1.jpeg" width="200">
+    <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.7/sources/final_user_1.jpeg" width="600">
 <br/>
 <p align="center">
     <img src="https://github.com/jatolentino/Flutter-Foodie-User/blob/v1.2/sources/step4-test-1.png" width="150">  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;

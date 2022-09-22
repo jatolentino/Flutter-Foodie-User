@@ -41,10 +41,10 @@ Clone the repository an unrar it, open the terminal and navigate to the folder p
 ```bash
 flutter pub get
 ```
-Navigate to the `ios` folder and run:
+Navigate to the `ios` folder in the root directory and run:
 
 ```bash
-    pod install
+pod install
 ```
 
 - Configure the firebase database, following the link [`Step 9.1: Create a firebase project`](https://github.com/jatolentino/Flutter-Foodie#configure_firebase)
